@@ -1,0 +1,342 @@
+#+TITLE:    The Social Stratification of Homeowners' Housing Wealth
+#+AUTHOR:   Jean-Sauveur Ay and Thibault Le Corre
+#+OPTIONS:  LaTeX:t tags:nil toc:nil H:5
+#+LANGUAGE: en
+#+STARTUP:  fold
+#+DRAWERS:  PROPERTIES BABEL BIND LATEX MACRO
+:BABEL:
+#+PROPERTY: header-args :session *R* :exports both :eval no :results output
+:END:
+:BIND:
+#+BIND:         org-latex-image-default-width ""
+#+BIND:         org-latex-tables-booktabs t
+:END:
+:LATEX:
+#+LaTex_CLASS:  ManueStat
+#+LaTeX_HEADER: \parindent 20pt \parskip 1ex  
+#+COLUMNS:      %40ITEM %10BEAMER_env(Env) %9BEAMER_envargs(Env Args) %4BEAMER_col(Col) %10BEAMER_extra(Extra)
+# LaTeX_HEADER: \usepackage[utf8]{inputenc} \usepackage[flushleft]{threeparttable}\renewcommand{\baselinestretch}{1.50} \newcommand\crule[3][black]{\textcolor{#1}{\rule{#2}{#3}}}
+#+LaTeX_HEADER: \usepackage{tabularx, rotating, booktabs, lscape, tikz, dcolumn, amssymb, amsmath, amsthm, bbm, eurosym, threeparttable, pdflscape}
+# LaTeX_HEADER: \usetikzlibrary{calc,trees,positioning,arrows,chains,shapes.geometric, decorations.pathreplacing,decorations.pathmorphing,shapes, matrix,shapes.symbols}
+# LaTeX_HEADER: \newcolumntype{Y}{>{\raggedleft\arraybackslash}X} \usepackage{caption} \captionsetup{font={stretch=.7}, position=top} \newcommand{\indep}{\;\rotatebox[origin=c]{90}{$\models$}\;}
+# LaTeX_HEADER: \newtheorem*{mydef*}{Definition} \newtheorem*{myrem*}{Remark}
+# LaTeX_HEADER: \newtheorem{mydef}{Definition}[section]  \newcommand{\mydefautorefname}{Definition}
+# LaTeX_HEADER: \newtheorem{myhyp}{Assumption}[section]  \newcommand{\myhypautorefname}{Assumption} 
+# LaTeX_HEADER: \newtheorem{myprp}{Proposition}[section] \newcommand{\myintautorefname}{Proposition}
+# LaTeX_HEADER: \newtheorem{mycor}{Corollary}[section]   \newcommand{\mycorautorefname}{Corollary}
+# LaTeX_HEADER: \newtheorem{myrem}{Remark}[section]   \newcommand{\myremautorefname}{Remark}
+:END:
+:MACRO:
+#+MACRO:         ffc @@latex: \superfullcite{$1}@@
+#+MACRO:         flc @@latex: \alert{\ding{220}}@@
+:END:
+
+* README
+  :PROPERTIES:
+  :EXPORT_FILE_NAME: README
+  :END:
+*** English version
+
+This repo contains the material associated to the paper "The Social
+Stratification of Homeowners' Housing Wealth: Bringing a Dynamic
+Approach through the Price Gap Index" accepted for publication in
+/Environment and Planning B: Urban Analytics and City Science/.
+
+    You can find from here :
+    - The last [[file:WPfin.pdf][working paper]] and the [[file:WPsoi.pdf][online appendix]]
+    - The replication material in [[file:ReproPaper.pdf][PDF]] and [[file:ReproPaper.md][Markdown]]
+
+*** Credits
+
+    Bug reports, comments and suggestions by opening an issue on
+    [[https://github.com/jsay/geoInd/issues][GitHub]] (preferred) or [[mailto:jsay@inra.fr][sending an email]].
+    
+    Made on =emacs= with =org-mode= to juggle with =R=, =LaTex= and
+    =Markdown=.
+
+    Special thanks to Virginie Piguet for her help with the spatial
+    coordinates of housing sales.
+
+    Licence GNU GPL V3, copyright and licence notices must be
+    preserved (see https://www.gnu.org/licenses/gpl-3.0.en.html)
+
+#+begin_export html
+<a href="https://zenodo.org/badge/latestdoi/181148746"><img src="https://zenodo.org/badge/181148746.svg" alt="DOI"></a>
+#+end_export
+
+* Data Papier
+  :PROPERTIES:
+  :EXPORT_FILE_NAME:    DataPaper
+  :header-args:         :tangle "./codePaper.R"
+  :EXPORT_LATEX_CLASS:  ManueStat
+  :EXPORT_TITLE:        @@latex: The Social Stratification of Homeowners' Housing Wealth: Bringing a Dynamic Approach through the Price Gap Index@@
+  :EXPORT_DATE:         REPLICATION MATERIAL
+  :EXPORT_OPTIONS:      TeX:t LaTeX:t skip:nil d:nil todo:t pri:nil tags:not-in-toc toc:nil H:3
+  :EXPORT_LATEX_HEADER: \usepackage[T1]{fontenc} \usepackage{tabularx, rotating, booktabs, lscape, tikz, dcolumn, amssymb, amsmath, amsthm, bbm, eurosym, threeparttable, pdflscape, txfonts, rotfloat} \usepackage{tocloft} \renewcommand{\abstractname}{Résumé} \usepackage[toc]{multitoc}\renewcommand*{\multicolumntoc}{2}\setlength{\columnseprule}{.5pt}\setlength{\columnsep}{1cm} \renewcommand{\cftsecleader}{\cftdotfill{\cftdotsep}} \renewcommand*\contentsname{Table des Matières}
+  :END:
+#+BEGIN_abstract
+ABSTRACT
+#+END_abstract
+# TOC: headlines 3
+#+Latex: \clearpage
+** Introduction
+*** Généralités sur les AOC                  :noheading:
+
+    Les appellations d'origine contrôlée (AOC) viticoles de Bourgogne
+    résultent de processus historiques complexes au cours desquels les
+    parcelles ont été classifiées selon leurs caractéristiques
+    biophysiques et selon les rapports économiques, politiques et
+    sociaux en vigueur citep:Garc11,WJac11.  Ainsi, la classification
+    actuelle est issue de plusieurs siècles de culture de la vigne, de
+    production de vin et de négociation sur les dénominations.  Ces
+    trois ensembles de pratiques forment les usages loyaux et
+    constants selon la doctrine de l'institut national de l'origine et
+    de la qualité (INAO) pour définir, reconnaître et gérer les AOC
+    citep:Capu47,Humb11.  La complexité des informations contenues
+    dans la référence au lieu de production et la complexité de leurs
+    évolutions dans le temps sont à la fois des forces et des
+    faiblesses pour les AOC.  Elles permettent de simplifier les
+    nombreux déterminants biophysiques de la qualité des vins au prix
+    d'une perte d'information et d'une certaine opacité pour les
+    acteurs des marchés du vin.
+    
+*** Économie des AOC                         :noheading:
+
+    La référence au lieu de production permet de donner une certaine
+    indication composite sur la qualité des vins lors des échanges.
+    Une abondante littérature économique (synthétisée par
+    citealp:CMar04) montre qu'en diminuant l'asymétrie d'information
+    entre les vendeurs et les acheteurs, les AOC peuvent limiter cette
+    défaillance de marché préjudiciable aux deux parties prenantes.
+    La question de la nature de l'information contenue dans les AOC se
+    pose alors, en particulier la distinction de la part relative aux
+    processus naturels de la part relative aux processus humains
+    citep:Dion52.  Cette séparation est déterminante pour identifier
+    les facteurs naturels, immobiles et non-reproductibles, qui
+    justifient réellement la référence au lieu de production
+    citep:Ay19.  Nous présentons ici la constitution de données et
+    l'estimation de modèles qui permettent d'opérer statistiquement
+    cette distinction.  Nous montrons la présence d'une hiérarchie
+    implicite entre les communes de la zone, qui biaise l'information
+    transmise par les AOC sur les caractéristiques biophysiques des
+    parcelles.  Nous utilisons les prédictions issues de cette
+    modélisation pour classifier l'ensemble des parcelles sur une
+    échelle continue de qualité (entre 0 et 100) tout en corrigeant
+    les effets communaux issus de l'histoire.  Nous présentons cette
+    information par le biais d'une application cartographique.
+
+*** Sources de données                       :noheading:
+
+    La Section [[#Sec:1]] présente la construction de la base de données
+    géographique disponible sous licence GNU GPL V3 sur le serveur
+    [[https://data.inra.fr/dataset.xhtml?persistentId=doi:10.15454/ZZWQMN][https://data.inra.fr/]].  La parcelle cadastrale est l'unité
+    élémentaire d'observation qui permet l'appariement des variables
+    sur les AOC actuelles (produites par l'INAO), sur les AOC de 1936
+    (produites par la MSH de Dijon), sur les lieux-dits par le Plan
+    Cadastral Informatisé (produit par la DGFiP), sur l'altimétrie par
+    le RGE ALTI\textsuperscript{\textregistered} à 5 mètres (produit
+    par l'IGN), sur l'occupation du sol (produite par citealp:HJRV18),
+    sur la géologie par Charm-50 (produit par le BRGM) et sur la
+    pédologie par le Référentiel Pédologique de Bourgogne (produit par
+    le Gis Sol).  Les données ainsi constituées concernent l'ensemble
+    des parcelles des 31 communes inclues dans la côte de Beaune et la
+    côte de Nuits, soient l'ensemble des vignobles du département de
+    la Côte-d'Or à l'exception des hautes côtes et du Châtillonnais
+    (\autoref{Fig:1}).  Cette base de données permet de relier
+    finement les AOC aux caractéristiques biophysiques des parcelles
+    dont les vins sont issus, et possède ainsi une utilisation plus
+    large que celle présentée ici.
+
+*** Modèle économétrique                     :noheading:
+    
+    La Section [[#Sec:3]] présente l'estimation des modèles statistiques
+    dont les spécifications sont décrites plus extensivement dans un
+    article associé citep:Ay19.  Le principe est d'utiliser la
+    structure hiérarchique des AOC (Coteaux bourguignons < Bourgogne
+    régional < Villages < Premiers crus < Grands crus) pour les relier
+    aux caractéristiques biophysiques des parcelles par une unique
+    variable latente de qualité des vignes.  Nous montrons que cette
+    variable continue non observable peut être estimée de manière
+    flexible à partir des AOC actuelles.  Nous utilisons pour cela des
+    modèles ordonnés additifs généralisés (OGAM pour /ordered
+    generalized additive model/, citealp:WPSa16) qui prédisent
+    correctement près de 90 % des niveaux actuels des AOC. Ils
+    permettent également d'estimer semi-paramétriquement l'effet de
+    chaque variable biophysique ainsi que les effets communaux issus
+    de l'histoire.  Ces estimations permettent de corriger les effets
+    communaux pour prédire la qualité des vignes uniquement à partir
+    des caractéristiques biophysiques.
+
+*** L'application                            :noheading:
+
+    La Section [[#Sec:4]] présente le codage et l'utilisation de
+    l'application /Shiny/ citep:CCAX19 qui permet de consulter la
+    classification continue des parcelles de vignes, telle que prédite
+    par la modélisation statistique.  L'utilisateur peut ainsi saisir
+    les informations typiquement disponibles sur les étiquettes des
+    bouteilles de vin de Bourgogne (le niveau de l'AOC dans la
+    hiérarchie, la commune de production, et le lieu-dit de la
+    parcelle) pour identifier géographiquement l'ensemble des
+    parcelles concernées et leur niveau de qualité prédite (avec ou
+    sans correction des effets communaux).  Cette information permet
+    une évaluation plus précise de la qualité des vins que la
+    hiérarchie actuelle des AOC en 5 niveaux, sans introduire de
+    facteurs subjectifs exogènes.  Cela permet en outre d'améliorer
+    l'information disponible pour les consommateurs à partir
+    d'informations déjà présentes sur les étiquettes.  Chaque vin
+    identifié peut alors être comparé aux autres vins du même niveau
+    hiérarchique ou aux vins d'autres niveaux hiérarchiques afin
+    d'évaluer sa qualité relative.
+
+*** Structure                                :noheading:
+
+    Les codes =R= citep:Core19 fournis permettent de reproduire
+    l'ensemble des tables et des figures à partir des données
+    disponibles sur le serveur [[https://data.inra.fr/dataset.xhtml?persistentId=doi:10.15454/ZZWQMN][https://data.inra.fr/]]. La version du
+    logiciel et des packages utilisés lors de la rédaction de cet
+    article sont reportés en Annexe 1.  L'intégralité du code relatif
+    à l'application /Shiny/ est également reportée en Annexes 5
+    et\nbsp{}6.  Elle peut ainsi être lancée localement, voire
+    modifiée par les utilisateurs.  La version la plus récente des
+    codes est accessible sur le répertoire
+    [[https://github.com/jsay/geoInd][https://github.com/jsay/geoInd]].
+
+*** Figure                                   :noheading:
+
+#+begin_export latex
+\vspace{.5cm}
+\begin{figure}[!h]
+  \centering\hspace{-2cm}
+\begin{minipage}{.5\textwidth}
+  \centering
+ \includegraphics[scale= .35]{./Figures/MapCom1}
+\end{minipage}%
+\begin{minipage}{.5\textwidth}
+  \centering
+ \includegraphics[scale= .35]{./Figures/MapCom2}
+\end{minipage}\vspace*{.5cm}
+\caption{\textbf{La zone de la Côte-d'Or étudiée, sa topographie
+    et ses appellations d'origine contrôlées}\\[.25cm]
+  {\footnotesize
+    Sources : INRA / INAO / MSH / DGFiP / IGN / BRGM / Gis Sol.\\
+    Lecture : La carte de gauche représente l'altitude des parcelles,
+    catégorisée en 8 classes de 50 mètres d'amplitude.  Situant la
+    ville de Dijon au Nord de la zone, elle permet de faire apparaître
+    la topographie de la Côte viticole majoritairement orientée à
+    l'Est mais dont la présence de vallées sèches (appelées combes)
+    produit des variations localisées.  La carte de droite présente
+    les 31 communes de la zone, qui constituent la dimension
+    horizontale des AOC viticoles (il n'y a pas de hiérarchie
+    explicite entre les communes).  La dimension verticale est
+    représentée par la hiérarchie en 5 niveaux reportée sur cette même
+    carte.  Ces deux cartes sont reproductibles à partir des données
+    présentées dans cet article, les codes utilisés sont consultables
+    à
+    \href{https://github.com/jsay/geoInd}{https://github.com/jsay/geoInd}.}}\label{Fig:1}
+\end{figure}
+#+end_export
+
+** Bibliographie                             :noheading:
+  :PROPERTIES:
+  :CUSTOM_ID: Sec:6
+  :END:
+
+   bibliographystyle:../Softwares/latex/erae
+   bibliography:Biblio.bib
+
+#+LATEX: \clearpage\appendix
+
+** Appendix
+  :PROPERTIES:
+  :CUSTOM_ID: Sec:A
+  :END:
+*** Annexe 1 : Configuration logicielle      :noheading:
+
+    *Annexe 1 : Configuration logicielle*
+
+#+begin_src R :wrap example
+sessionInfo()
+#+end_src
+
+#+RESULTS:
+#+begin_example
+R version 3.6.0 (2019-04-26)
+Platform: x86_64-pc-linux-gnu (64-bit)
+Running under: Ubuntu 18.04.2 LTS
+
+Matrix products: default
+BLAS:   /usr/lib/x86_64-linux-gnu/blas/libblas.so.3.7.1
+LAPACK: /usr/lib/x86_64-linux-gnu/lapack/liblapack.so.3.7.1
+
+locale:
+ [1] LC_CTYPE=fr_FR.UTF-8       LC_NUMERIC=C              
+ [3] LC_TIME=fr_FR.UTF-8        LC_COLLATE=fr_FR.UTF-8    
+ [5] LC_MONETARY=fr_FR.UTF-8    LC_MESSAGES=fr_FR.UTF-8   
+ [7] LC_PAPER=fr_FR.UTF-8       LC_NAME=C                 
+ [9] LC_ADDRESS=C               LC_TELEPHONE=C            
+[11] LC_MEASUREMENT=fr_FR.UTF-8 LC_IDENTIFICATION=C       
+
+attached base packages:
+[1] stats     graphics  grDevices utils     datasets  methods  
+[7] base     
+
+other attached packages:
+[1] latticeExtra_0.6-28 lattice_0.20-38     mgcv_1.8-28        
+[4] nlme_3.1-140        rgdal_1.3-6         sf_0.7-2           
+[7] mapview_2.6.3       RColorBrewer_1.1-2  sp_1.3-1           
+
+loaded via a namespace (and not attached):
+ [1] Rcpp_1.0.0        compiler_3.6.0    later_0.7.5      
+ [4] base64enc_0.1-3   class_7.3-15      tools_3.6.0      
+ [7] digest_0.6.18     satellite_1.0.1   viridisLite_0.3.0
+[10] png_0.1-7         Matrix_1.2-17     shiny_1.2.0      
+[13] DBI_1.0.0         crosstalk_1.0.0   e1071_1.7-0      
+[16] raster_2.8-4      htmlwidgets_1.3   stats4_3.6.0     
+[19] classInt_0.3-1    leaflet_2.0.2     grid_3.6.0       
+[22] webshot_0.5.1     R6_2.4.0          magrittr_1.5     
+[25] scales_1.0.0      codetools_0.2-16  promises_1.0.1   
+[28] htmltools_0.3.6   units_0.6-2       splines_3.6.0    
+[31] mime_0.6          xtable_1.8-3      colorspace_1.3-2 
+[34] httpuv_1.4.5      munsell_0.5.0
+#+end_example
+
+#+Latex: \clearpage
+
+*** Annexe 2 : Configuration graphique       :noheading:
+    
+    *Annexe 2 : Configuration graphique*
+
+#+begin_src R
+## Pour Figure 2
+my.lab= c(BGOR= "Coteaux b.", BOUR= "Bourgogne", VILL= "Village",
+          PCRU= "Premier cru", GCRU= "Grand cru")
+library(RColorBrewer)
+my.pal= brewer.pal(n= 9, name = "BuPu")[ 2: 8]
+library(lattice)
+my.key= list(space= "top", points= F, rectangles= T, columns= 5, text= my.lab)
+my.par= list(superpose.polygon= list(col= my.pal))
+my.pan= function(x, y, ...) {
+             panel.grid(h= 0, v = -11, col= "grey60")
+             panel.barchart(x, y, ...)
+             ltext(fig.crd, y, lab= ifelse(fig.lab> 0, fig.lab, ""))}
+## Pour Tableau 7
+library(stargazer)          
+tb.lab <-
+    c(AREA= "Surface [1000 m$^2$]", DEM= "Altitude [1000 m]",
+      SLOPE= "Pente [degrés]", SOLAR=  "Radiation solaire [millions J]",
+      X= "Longitude [degrés]", Y= "Latitude [degrés]",
+      AOC1= "Niveau AOC Coteaux", AOC2= "Niveau AOC Régional",
+      AOC3= "Niveau AOC Village", AOC4= "Niveau AOC Premier Cru",
+      AOC5= "Niveau AOC Grand Cru",
+      EXPO1= "Exposition [$0-45$]"   , EXPO2= "Exposition [$45-90$]",
+      EXPO3= "Exposition [$90-135$]" , EXPO4= "Exposition [$135-180$]",
+      EXPO5= "Exposition [$180-225$]", EXPO6= "Exposition [$225-270$]",
+      EXPO7= "Exposition [$270-315$]", EXPO8= "Exposition [$315-360$]")
+## Pour Figure 4
+plogi <- function(x) exp(x/ sqrt(2))/ (1+ exp(x/ sqrt(2)))
+mso.key <- list(x = .35, y = .95, corner = c(1, 1),
+            text = list(c("Côte de Beaune", "Côte de Nuits")),
+            rectangle = list(col = c("chartreuse", "tomato"))) 
+#+end_src
+
+#+Latex: \clearpage
